@@ -232,7 +232,7 @@ $userName = $auth ? htmlspecialchars($auth['name']) : null;
             <div class="help-desk-chat-header">
                 <div class="chat-title">
                     <h4>Help Desk</h4>
-                    <p>Tim support online</p>
+                    <span id="chatStatusLabel" class="chat-status-label status-ai_handling">🤖 Dijawab AI</span>
                 </div>
                 <button type="button" class="chat-close" id="closeHelpDesk" aria-label="Tutup chat">✕</button>
             </div>
@@ -252,6 +252,11 @@ $userName = $auth ? htmlspecialchars($auth['name']) : null;
                 </div>
             </div>
 
+            <div class="help-desk-chat-actions">
+                <button type="button" class="btn-request-human" id="requestHumanBtn" title="Minta bantuan agen manusia">
+                    🙋 Hubungi Admin
+                </button>
+            </div>
             <form class="help-desk-chat-form" id="helpDeskForm">
                 <input type="text" class="help-desk-chat-input" id="helpDeskInput"
                     placeholder="Ketik pertanyaan Anda..." autocomplete="off" required>

@@ -2,33 +2,17 @@
 /**
  * auth.php
  * ─────────────────────────────────────────────────────────────
- * Menyimpan logic autentikasi:
- *   - Daftar pengguna (hardcoded untuk demo)
- *   - Pengecekan session (redirect jika sudah login)
- *   - Pemrosesan form POST (validasi & set session)
+ * Logic autentikasi:
+ *   - Query ke database (bukan hardcoded)
+ *   - Verifikasi password dengan password_verify()
+ *   - Pengecekan session & redirect
  *
  * Di-require oleh login.php sebelum output HTML apapun.
  * ─────────────────────────────────────────────────────────────
  */
 
 session_start();
-
-// ── Daftar pengguna (demo) ───────────────────────────────────
-// Produksi: ganti dengan query database + password_hash/verify
-$users = [
-    [
-        'username' => 'admin',
-        'password' => 'admin123',
-        'role'     => 'admin',
-        'name'     => 'Administrator',
-    ],
-    [
-        'username' => 'user',
-        'password' => 'user123',
-        'role'     => 'user',
-        'name'     => 'Guest User',
-    ],
-];
+require_once __DIR__ . '/db.php';
 
 // ── Sudah login → redirect langsung ─────────────────────────
 if (!empty($_SESSION['auth'])) {
@@ -40,33 +24,43 @@ if (!empty($_SESSION['auth'])) {
 }
 
 // ── Proses form POST ─────────────────────────────────────────
-$error         = '';
-$lastUsername  = '';
+$error        = '';
+$lastUsername = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $inputUsername = trim($_POST['username'] ?? '');
     $inputPassword = $_POST['password'] ?? '';
     $lastUsername  = $inputUsername;
 
-    $authenticated = false;
-    foreach ($users as $user) {
-        if ($user['username'] === $inputUsername && $user['password'] === $inputPassword) {
-            $_SESSION['auth'] = [
-                'username' => $user['username'],
-                'role'     => $user['role'],
-                'name'     => $user['name'],
-            ];
-            $authenticated = true;
+    if ($inputUsername === '' || $inputPassword === '') {
+        $error = 'Username dan password tidak boleh kosong.';
+    } else {
+        try {
+            $pdo  = db_connect();
+            $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ? LIMIT 1');
+            $stmt->execute([$inputUsername]);
+            $user = $stmt->fetch();
 
-            $redirect = $user['role'] === 'admin'
-                ? 'Admin/dashboard-view.php'
-                : 'index.php';
-            header('Location: ' . $redirect);
-            exit;
+            if ($user && password_verify($inputPassword, $user['password'])) {
+                // Login berhasil — simpan data ke session
+                $_SESSION['auth'] = [
+                    'id'       => (int) $user['id'],
+                    'username' => $user['username'],
+                    'role'     => $user['role'],
+                    'name'     => $user['full_name'],
+                ];
+
+                $redirect = $user['role'] === 'admin'
+                    ? 'Admin/dashboard-view.php'
+                    : 'index.php';
+
+                header('Location: ' . $redirect);
+                exit;
+            } else {
+                $error = 'Username atau password salah. Silakan coba lagi.';
+            }
+        } catch (PDOException $e) {
+            $error = 'Terjadi kesalahan pada server. Silakan coba lagi nanti.';
         }
-    }
-
-    if (!$authenticated) {
-        $error = 'Username atau password salah. Silakan coba lagi.';
     }
 }
