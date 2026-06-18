@@ -1,0 +1,260 @@
+====================================================
+  CARA KERJA CHATBOT HELP DESK — DISTY TEKNOLOGI
+====================================================
+
+Dokumen ini menjelaskan bagaimana chatbot di website
+Disty Teknologi bekerja, dengan bahasa yang mudah
+dipahami oleh siapa saja.
+
+----------------------------------------------------
+
+GAMBARAN SINGKAT
+----------------------------------------------------
+
+Chatbot ini adalah asisten pesan otomatis yang
+muncul di sudut kanan bawah halaman website.
+Fungsinya seperti customer service, tetapi dijalankan
+oleh komputer (AI) terlebih dahulu sebelum melibatkan
+staf manusia jika diperlukan.
+
+Ada 3 pihak yang terlibat dalam sistem ini:
+
+  1. CUSTOMER  — pengunjung website yang bertanya
+  2. AI / BOT  — komputer yang menjawab otomatis
+  3. ADMIN/CS  — staf manusia yang membantu jika AI
+                 tidak bisa menjawab
+
+
+====================================================
+ALUR KERJA LANGKAH DEMI LANGKAH
+====================================================
+
+LANGKAH 1 — Customer Membuka Help Desk
+----------------------------------------------------
+
+Ketika customer mengklik tombol "Help Desk" di website:
+
+  - Sistem secara otomatis membuat "ruang percakapan"
+    baru khusus untuk customer tersebut.
+  - Bot langsung menyapa dengan pesan:
+    "Halo! Ada yang bisa saya bantu?"
+  - Percakapan dimulai dan ditangani oleh AI.
+
+  Catatan: Selama customer belum menutup browser,
+  percakapan yang sama akan terus dilanjutkan
+  (tidak membuat percakapan baru).
+
+
+LANGKAH 2 — Customer Mengirim Pertanyaan
+----------------------------------------------------
+
+Ketika customer mengetik pertanyaan dan menekan Kirim:
+
+  - Pesan customer disimpan ke dalam database.
+  - Pertanyaan dikirim ke sistem AI untuk diproses.
+  - AI mencari jawaban dari kumpulan data yang sudah
+    disiapkan sebelumnya (berisi informasi tentang
+    layanan Disty Teknologi).
+  - AI memberikan jawaban kepada customer.
+
+  Proses ini terjadi dalam hitungan detik secara
+  otomatis tanpa campur tangan manusia.
+
+
+LANGKAH 3 — Bagaimana AI Tahu Jawabannya?
+----------------------------------------------------
+
+AI di sistem ini tidak pintar secara umum, melainkan
+sudah "diajarkan" khusus menggunakan data QnA
+(Tanya Jawab) tentang Disty Teknologi.
+
+  Analoginya seperti ini:
+  Bayangkan AI seperti seorang karyawan baru yang
+  diberi buku panduan berisi semua pertanyaan yang
+  mungkin ditanyakan pelanggan beserta jawabannya.
+  Ketika ada pertanyaan masuk, AI mencari di buku
+  panduan tersebut untuk menemukan jawaban yang
+  paling relevan.
+
+  Langkah-langkah AI menjawab:
+  [1] Pertanyaan customer masuk
+  [2] AI mencari informasi yang relevan dari database
+      pengetahuannya (seperti mencari di kamus)
+  [3] AI merangkai jawaban berdasarkan informasi
+      yang ditemukan
+  [4] Jawaban dikirim kembali ke customer
+
+
+LANGKAH 4 — Jika AI Tidak Bisa Menjawab
+----------------------------------------------------
+
+Jika pertanyaan customer tidak ada dalam data
+pengetahuan AI, maka:
+
+  - AI akan menjawab jujur seperti:
+    "Maaf saya tidak mengerti dengan pertanyaan anda"
+  - Sistem OTOMATIS mendeteksi bahwa AI tidak tahu
+    jawabannya.
+  - Status percakapan berubah dari "Ditangani AI"
+    menjadi "Menunggu Admin".
+  - Customer mendapat pesan:
+    "Pertanyaan Anda akan diteruskan ke agen manusia.
+     Mohon tunggu sebentar..."
+
+  Proses ini terjadi secara otomatis tanpa perlu
+  customer melakukan apa-apa.
+
+
+LANGKAH 5 — Customer Minta Admin Secara Manual
+----------------------------------------------------
+
+Selain menunggu AI untuk meneruskan, customer juga
+bisa langsung menekan tombol "Hubungi Admin" kapan
+saja jika ingin berbicara langsung dengan staf.
+
+  Yang terjadi:
+  - Status percakapan langsung berubah menjadi
+    "Menunggu Admin".
+  - Muncul pesan:
+    "Pengguna meminta bantuan agen manusia.
+     Mohon tunggu, agen kami akan segera bergabung..."
+  - Customer cukup menunggu staf merespons.
+
+
+LANGKAH 6 — Admin Melihat Percakapan yang Masuk
+----------------------------------------------------
+
+Di sisi admin, staf membuka halaman panel admin
+khusus. Di sana, mereka bisa melihat semua percakapan
+yang sedang berlangsung secara real-time.
+
+  Daftar percakapan diurutkan berdasarkan urgensi:
+
+  [!] PALING ATAS  — Percakapan yang menunggu admin
+                     (ditandai dengan titik merah)
+  [ ] DI BAWAHNYA  — Percakapan yang sudah ditangani
+  [ ] PALING BAWAH — Percakapan yang masih di AI
+
+  Halaman admin otomatis memperbarui daftar ini
+  setiap 5 detik tanpa perlu di-refresh manual.
+
+
+LANGKAH 7 — Admin Mengambil Alih Percakapan
+----------------------------------------------------
+
+Ketika admin melihat percakapan yang menunggu,
+mereka mengklik percakapan tersebut lalu menekan
+tombol "Ambil Percakapan".
+
+  Yang terjadi:
+  - Percakapan "dikunci" ke admin tersebut.
+  - Customer otomatis menerima pesan:
+    "Agen [Nama Admin] telah bergabung.
+     Anda sekarang terhubung ke agen manusia."
+  - Admin bisa langsung membalas pesan customer
+    secara langsung seperti chat biasa.
+
+
+LANGKAH 8 — Admin dan Customer Saling Balas Pesan
+----------------------------------------------------
+
+Setelah admin bergabung, komunikasi berlangsung
+seperti chat pada umumnya:
+
+  - Admin mengetik pesan di panel admin → dikirim
+  - Customer menerima pesan admin di browser mereka
+    (otomatis muncul setiap 3 detik)
+  - Customer membalas → admin menerima di panel
+
+  Semua pesan tersimpan di database sehingga
+  riwayat percakapan tidak hilang.
+
+
+LANGKAH 9 — Admin Menutup Percakapan
+----------------------------------------------------
+
+Setelah masalah customer selesai ditangani, admin
+menekan tombol "Tutup".
+
+  Yang terjadi:
+  - Customer menerima pesan:
+    "Percakapan ini telah ditutup oleh [Nama Admin].
+     Terima kasih."
+  - Percakapan hilang dari daftar aktif admin.
+  - Riwayat percakapan tetap tersimpan di database.
+
+
+====================================================
+RINGKASAN STATUS PERCAKAPAN
+====================================================
+
+Setiap percakapan memiliki "status" yang menunjukkan
+kondisinya saat ini. Berikut penjelasan sederhananya:
+
+  STATUS             ARTINYA
+  ─────────────────  ──────────────────────────────────
+  Ditangani AI    →  Bot sedang menjawab otomatis
+  Menunggu Admin  →  Butuh staf manusia, belum diambil
+  Ditangani Staf  →  Staf manusia sedang membalas
+  Selesai         →  Percakapan sudah ditutup
+
+
+====================================================
+SIAPA YANG BISA LOGIN KE PANEL ADMIN?
+====================================================
+
+Hanya staf yang terdaftar yang bisa masuk ke panel
+admin menggunakan username dan password.
+
+Ada 2 jenis pengguna di sistem ini:
+
+  - ADMIN  : Dapat melihat semua percakapan, mengelola
+             staf, dan mengakses semua fitur.
+  - CS     : Dapat melihat dan menangani percakapan
+             customer.
+
+Jika seseorang yang tidak terdaftar mencoba mengakses
+halaman admin, mereka akan dialihkan ke halaman login.
+
+
+====================================================
+TEKNOLOGI YANG DIGUNAKAN (VERSI SEDERHANA)
+====================================================
+
+  Website         : Dibuat dengan PHP dan tampilan HTML/CSS
+  Database        : MySQL — tempat menyimpan semua pesan
+                    dan data percakapan
+  Otak AI         : Model bahasa LLaMA (buatan Meta)
+                    yang dijalankan via layanan Groq
+  Pengetahuan AI  : Dataset QnA dalam format CSV yang
+                    sudah disiapkan oleh tim Disty
+  Pencarian Cepat : ChromaDB — database khusus yang
+                    membantu AI menemukan jawaban
+                    yang relevan dengan cepat
+
+
+====================================================
+PERTANYAAN UMUM
+====================================================
+
+Q: Apakah AI bisa menjawab semua pertanyaan?
+A: Tidak. AI hanya bisa menjawab pertanyaan yang
+   berkaitan dengan layanan Disty Teknologi sesuai
+   data yang sudah diajarkan. Di luar itu, AI akan
+   jujur tidak bisa menjawab dan meneruskan ke staf.
+
+Q: Berapa lama customer harus menunggu admin?
+A: Tergantung ketersediaan staf. Sistem akan
+   memberitahu admin ada percakapan yang menunggu
+   melalui notifikasi di panel admin.
+
+Q: Apakah percakapan tersimpan?
+A: Ya, semua pesan tersimpan di database dan bisa
+   dilihat kembali oleh admin kapan saja.
+
+Q: Bisakah customer berbicara ke admin langsung
+   tanpa melewati AI dulu?
+A: Bisa, dengan menekan tombol "Hubungi Admin"
+   yang tersedia di jendela chat kapan saja.
+
+====================================================

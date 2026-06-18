@@ -31,6 +31,7 @@ $adminName = htmlspecialchars($_SESSION['auth']['name']);
         <nav class="side-nav">
             <a href="dashboard-view.php">📊 Dashboard</a>
             <a href="chat-view.php">💬 Chat</a>
+            <a href="history-view.php">📋 Histori</a>
             <a href="staff-view.php">👥 Staff</a>
         </nav>
         <div class="side-bottom">

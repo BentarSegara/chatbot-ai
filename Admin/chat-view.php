@@ -39,6 +39,7 @@ $adminName = htmlspecialchars($_SESSION['auth']['name']);
         <nav class="side-nav">
             <a href="dashboard-view.php">📊 Dashboard</a>
             <a href="chat-view.php" class="active">💬 Chat <span class="nav-badge" id="waitingBadge" hidden>!</span></a>
+            <a href="history-view.php">📋 Histori</a>
             <a href="staff-view.php">👥 Staff</a>
         </nav>
         <div class="side-bottom">
@@ -110,7 +111,7 @@ $adminName = htmlspecialchars($_SESSION['auth']['name']);
 
                         <form class="message-form" id="adminChatForm">
                             <input type="text" id="adminChatInput" placeholder="Ketik pesan..." autocomplete="off" required>
-                            <button type="submit">Kirim</button>
+                            <button type="submit" id="adminChatSubmit">Kirim</button>
                         </form>
                     </div>
                 </section>
@@ -147,6 +148,7 @@ const adminChatForm  = document.getElementById('adminChatForm');
 const adminChatInput = document.getElementById('adminChatInput');
 const btnAssign      = document.getElementById('btnAssign');
 const btnCloseConv   = document.getElementById('btnCloseConv');
+const adminChatSubmit = document.getElementById('adminChatSubmit');
 
 // ── Status label helper ───────────────────────────────────────
 const STATUS_LABELS = {
@@ -247,6 +249,17 @@ function updateChatHeader(status) {
     // Tampilkan tombol sesuai status
     btnAssign.hidden    = (status !== 'waiting_cs');
     btnCloseConv.hidden = (status === 'closed' || status === 'ai_handling');
+
+    // Enable/disable form input admin berdasarkan status
+    const canReply = (status === 'cs_handling');
+    adminChatInput.disabled  = !canReply;
+    adminChatSubmit.disabled = !canReply;
+    adminChatForm.style.opacity = canReply ? '1' : '0.45';
+    adminChatInput.placeholder = canReply
+        ? 'Ketik pesan...'
+        : (status === 'waiting_cs' ? 'Ambil percakapan untuk membalas...' :
+           status === 'closed'     ? 'Percakapan sudah selesai.' :
+                                     'Percakapan ditangani AI.');
 }
 
 // ── Render pesan ──────────────────────────────────────────────
@@ -367,11 +380,20 @@ btnAssign.addEventListener('click', async () => {
     btnAssign.disabled = true;
 
     try {
-        await fetch('../api/admin-assign.php', {
+        const res  = await fetch('../api/admin-assign.php', {
             method  : 'POST',
             headers : { 'Content-Type': 'application/json' },
             body    : JSON.stringify({ conv_id: selectedConvId }),
         });
+        const data = await res.json();
+
+        if (data.success || data.error === undefined) {
+            // Langsung update UI tanpa menunggu polling
+            updateChatHeader('cs_handling');
+            adminChatInput.disabled  = false;
+            adminChatSubmit.disabled = false;
+            adminChatInput.focus();
+        }
 
         await loadMessages();
         await loadConversations();

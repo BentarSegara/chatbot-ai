@@ -1,0 +1,27 @@
+Chatbot AI saya buat dengan menggunakan sistem RAG (Retrieval-Augmented Generation) menggunakan Bahasa Python, dimana langkah pertama yang saya lakukan yaitu menghubungkan aplikasi dengan basis pengetahuan yang tersimpan pada ChromaDB dan menggunakan model embedding Gemini untuk mencari dokumen yang paling relevan terhadap pertanyaan pengguna. Selanjutnya, dokumen yang ditemukan dijadikan konteks dan dikirim bersama pertanyaan pengguna ke model Gemini 2.5 Flash untuk menghasilkan jawaban yang sesuai. Dengan pendekatan ini, chatbot dapat memberikan respons berdasarkan informasi yang tersedia pada basis pengetahuan yang telah disimpan sebelumnya.
+
+Setelah berhasil membuat chatbot untuk bisa menjawab pertanyaan sesuai konteks dataset yang disediakan, maka langkah selanjutnya adalah membuat popup chat sebagai user interface percakapan customer dengan chatbot. user interface dibuat dengan html.
+
+Selanjutnya, setelah UI popchat sudah tersedia, maka yang saya lakukan adalah membuat API untuk menghubungkan antara Frontend (Popup chat) dengan AI itu sendiri. API dibuat dengan menggunakan library FastAPI dari Python. untuk saat ini, saya hanya membuat satu endpoint (POST) yang berfungsi untuk customer mengirim pertanyaan ke AI dan AI mengirimkan respon ke customer.
+
+Setelah semua rangkain proses tadi selesai, chatbot berhasil berjalan menjawab pertanyaan customer yang sesuai dengan konteks dengan user interface chat yang juga sudah tersedia.
+
+Langkah selanjutnya, yaitu bagaimana caranya membuat fitur help desk ini tidak hanya dapat dijawab oleh bot, namun juga oleh manusia (admin) agar semua pertanyaan yang tidak dapat dijawab bot dapat dijawab oleh admin.
+
+1. Pendeteksian Kebutuhan Bantuan Staf (Otomatis atau Manual):
+   - Otomatis: Saat chatbot menjawab dengan kalimat ketidaktahuan (seperti "Maaf saya tidak mengerti..."), backend Python akan mengirim indikasi "needs_human" ke backend PHP (api/send-message.php). Program otomatis mengubah status percakapan di database menjadi 'waiting_cs' (menunggu CS) dan menyisipkan pesan sistem.
+   - Manual: Customer mengklik tombol "Hubungi Admin" di tampilan chat, yang memicu file api/request-human.php untuk langsung memperbarui status percakapan di database menjadi 'waiting_cs'.
+
+2. Notifikasi Real-time di Panel Admin:
+   - Panel admin (Admin/chat-view.php) melakukan pengecekan data berkala (polling) setiap 5 detik ke file api/admin-get-conversations.php.
+   - Program memuat daftar percakapan aktif dan mengurutkannya secara prioritas di mana status 'waiting_cs' diletakkan paling atas dengan indikator merah (red dot) untuk menarik perhatian admin.
+
+3. Pengambilalihan Percakapan (Assign) oleh Admin:
+   - Admin melihat chat masuk, membukanya, dan mengklik tombol "Ambil Percakapan".
+   - Klik tersebut memicu api/admin-assign.php yang bertugas mengupdate status percakapan di database menjadi 'cs_handling' (ditangani CS) serta mencatat ID admin yang menangani percakapan tersebut di kolom assigned_cs_id.
+   - Program juga menyimpan pesan sistem otomatis ke database berbunyi "Agen [Nama Staf] telah bergabung. Anda sekarang terhubung ke agen manusia." untuk ditampilkan ke customer.
+
+4. Komunikasi Dua Arah & Penutupan:
+   - Dengan status percakapan yang berubah menjadi 'cs_handling', logika program di api/send-message.php akan menonaktifkan AI sehingga AI tidak akan ikut menjawab lagi.
+   - Customer mengirim pesan via api/send-message.php dan admin membalas via api/admin-send-message.php. Keduanya saling bertukar pesan yang disimpan di database, lalu ditampilkan di layar masing-masing lewat polling berkala setiap 3 detik (api/get-messages.php).
+   - Setelah masalah selesai, admin mengklik tombol "Tutup" (api/admin-close-conversation.php) untuk mengubah status di database menjadi 'closed', menyisipkan pesan penutup, dan menyembunyikan chat dari daftar aktif admin.

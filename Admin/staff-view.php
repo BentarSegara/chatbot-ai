@@ -40,6 +40,7 @@ $staffStats = [
         <nav class="side-nav">
             <a href="dashboard-view.php">📊 Dashboard</a>
             <a href="chat-view.php">💬 Chat</a>
+            <a href="history-view.php">📋 Histori</a>
             <a href="staff-view.php" class="active">👥 Staff</a>
         </nav>
         <div class="side-bottom">

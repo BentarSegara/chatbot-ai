@@ -238,10 +238,10 @@ $userName = $auth ? htmlspecialchars($auth['name']) : null;
             </div>
 
             <div class="help-desk-chat-body" id="helpDeskMessages">
-                <div class="chat-message assistant">
+                <!-- <div class="chat-message assistant">
                     Halo! Ada yang bisa saya bantu?
                     <div class="chat-timestamp">Sekarang</div>
-                </div>
+                </div> -->
                 <div class="chat-suggestions-wrapper">
                     <div class="chat-suggestions-heading">Coba salah satu pertanyaan berikut</div>
                     <div class="chat-suggestions" id="chatSuggestions">

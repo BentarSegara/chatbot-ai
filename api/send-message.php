@@ -7,6 +7,8 @@
  * - Jika status ai_handling → panggil Python /detect-handoff
  * - Jika AI tidak tahu → ubah status ke waiting_cs
  * - Jika status waiting_cs / cs_handling → beri tahu user
+ * Mengembalikan last_message_id (ID pesan terakhir yang diinsert)
+ * agar JS dapat meng-update lastMsgId dan mencegah render ganda.
  * ─────────────────────────────────────────────────────────────
  */
 
@@ -43,6 +45,8 @@ $stmtMsg = $pdo->prepare(
     'INSERT INTO messages (conversation_id, sender_role, sender_name, content) VALUES (?, ?, ?, ?)'
 );
 $stmtMsg->execute([$convId, 'user', 'Tamu', $text]);
+// last_message_id akan terus diperbarui setiap kali ada insert baru
+$lastMessageId = (int) $pdo->lastInsertId();
 
 $status = $conv['status'];
 
@@ -75,8 +79,9 @@ switch ($status) {
             $aiAnswer = 'Maaf, layanan AI sedang tidak tersedia. Silakan coba lagi nanti.';
         }
 
-        // Simpan jawaban AI
+        // Simpan jawaban AI ke DB
         $stmtMsg->execute([$convId, 'ai', 'Bot Assistant', $aiAnswer]);
+        $lastMessageId = (int) $pdo->lastInsertId(); // update ke ID pesan AI
 
         if ($needsHuman) {
             // Handoff → ubah status ke waiting_cs
@@ -85,33 +90,45 @@ switch ($status) {
 
             $systemMsg = 'Pertanyaan Anda akan diteruskan ke agen manusia. Mohon tunggu sebentar...';
             $stmtMsg->execute([$convId, 'system', 'System', $systemMsg]);
+            $lastMessageId = (int) $pdo->lastInsertId(); // update ke ID pesan system
 
             echo json_encode([
-                'answer'     => $aiAnswer,
-                'status'     => 'waiting_cs',
-                'system_msg' => $systemMsg,
+                'answer'          => $aiAnswer,
+                'status'          => 'waiting_cs',
+                'system_msg'      => $systemMsg,
+                'last_message_id' => $lastMessageId,
             ]);
             exit;
         }
 
-        echo json_encode(['answer' => $aiAnswer, 'status' => 'ai_handling']);
+        echo json_encode([
+            'answer'          => $aiAnswer,
+            'status'          => 'ai_handling',
+            'last_message_id' => $lastMessageId,
+        ]);
         break;
 
     case 'waiting_cs':
         echo json_encode([
-            'answer'     => null,
-            'status'     => 'waiting_cs',
-            'system_msg' => 'Pesan Anda sudah tercatat. Agen kami akan segera merespons...',
+            'answer'          => null,
+            'status'          => 'waiting_cs',
+            'system_msg'      => 'Pesan Anda sudah tercatat. Agen kami akan segera merespons...',
+            'last_message_id' => $lastMessageId,
         ]);
         break;
 
     case 'cs_handling':
         echo json_encode([
-            'answer' => null,
-            'status' => 'cs_handling',
+            'answer'          => null,
+            'status'          => 'cs_handling',
+            'last_message_id' => $lastMessageId,
         ]);
         break;
 
     default:
-        echo json_encode(['answer' => null, 'status' => $status]);
+        echo json_encode([
+            'answer'          => null,
+            'status'          => $status,
+            'last_message_id' => $lastMessageId,
+        ]);
 }

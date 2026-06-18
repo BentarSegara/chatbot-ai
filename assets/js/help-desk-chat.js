@@ -21,11 +21,13 @@ const suggestions = document.getElementById('chatSuggestions');
 const humanBtn    = document.getElementById('requestHumanBtn');
 
 /* ── State ──────────────────────────────────────────────────── */
-let convId      = null;   // ID percakapan dari DB
-let lastMsgId   = 0;      // ID pesan terakhir yang sudah dirender
-let pollTimer   = null;   // setInterval untuk polling
-let convStatus  = 'ai_handling';
-let isInitialized = false;
+let convId          = null;   // ID percakapan dari DB
+let lastMsgId       = 0;      // ID pesan terakhir yang sudah dirender
+let pollTimer       = null;   // setInterval untuk polling
+let convStatus      = 'ai_handling';
+let isInitialized   = false;
+let isSending       = false;  // Flag agar tidak poll saat sedang kirim pesan
+let renderedMsgIds  = new Set(); // Set ID pesan dari DB yang sudah dirender (deduplikasi)
 
 /* ── Helper: Render pesan ke chat ────────────────────────────── */
 function renderMessage(role, content, senderName) {
@@ -112,6 +114,7 @@ async function initConversation() {
 /* ── Polling pesan baru ──────────────────────────────────────── */
 async function pollMessages() {
     if (!convId) return;
+    if (isSending) return; // Jangan poll saat sedang mengirim pesan
 
     try {
         const res  = await fetch(`api/get-messages.php?conv_id=${convId}&after=${lastMsgId}`);
@@ -124,8 +127,13 @@ async function pollMessages() {
             }
 
             data.messages.forEach(msg => {
-                renderMessage(msg.sender_role, msg.content, msg.sender_name);
-                lastMsgId = Math.max(lastMsgId, parseInt(msg.id));
+                const msgId = parseInt(msg.id);
+                // Deduplikasi: skip jika ID ini sudah pernah dirender
+                if (!renderedMsgIds.has(msgId)) {
+                    renderedMsgIds.add(msgId);
+                    renderMessage(msg.sender_role, msg.content, msg.sender_name);
+                }
+                lastMsgId = Math.max(lastMsgId, msgId);
             });
         }
 
@@ -165,13 +173,28 @@ function closePopup() {
     backdrop.hidden = true;
     document.body.classList.remove('chat-open');
     stopPolling();
-    isInitialized = false; // Reset supaya polling bisa mulai lagi saat dibuka
+
+    // Reset semua state agar percakapan yang sudah closed tidak menghambat sesi baru
+    convId         = null;
+    lastMsgId      = 0;
+    convStatus     = 'ai_handling';
+    isInitialized  = false;
+    isSending      = false;
+    renderedMsgIds = new Set(); // Reset deduplikasi
+
+    // Bersihkan tampilan pesan
+    if (msgContainer) msgContainer.innerHTML = '';
+    if (input) {
+        input.value    = '';
+        input.disabled = false;
+    }
 }
 
-/* ── Kirim pesan ─────────────────────────────────────────────── */
+/* ── Kirim pesan ────────────────────────────────────────────── */
 async function sendMessage(text) {
     if (!convId || !text) return;
 
+    // Render pesan user secara optimistic (tidak punya DB ID, tampilkan langsung)
     renderMessage('user', text);
 
     if (input) {
@@ -179,6 +202,7 @@ async function sendMessage(text) {
         input.disabled = true;
     }
 
+    isSending = true; // Blokir polling saat mengirim
     showTyping();
 
     try {
@@ -188,6 +212,20 @@ async function sendMessage(text) {
             body    : JSON.stringify({ conv_id: convId, message: text }),
         });
         const data = await res.json();
+
+        // ── FIX DUPE MSG: Tandai semua pesan yang baru diinsert ke DB
+        // sebagai "sudah dirender" agar polling tidak render ulang.
+        // Server menyimpan: pesan user (ID=N), pesan AI (ID=N+1),
+        // dan mungkin pesan system (ID=N+2). last_message_id = ID terakhir.
+        if (data.last_message_id) {
+            const newLastId  = parseInt(data.last_message_id);
+            const prevLastId = lastMsgId; // ID sebelum pengiriman ini
+            // Tandai seluruh rentang ID yang baru diinsert server
+            for (let id = prevLastId + 1; id <= newLastId; id++) {
+                renderedMsgIds.add(id);
+            }
+            lastMsgId = Math.max(lastMsgId, newLastId);
+        }
 
         hideTyping();
 
@@ -205,12 +243,14 @@ async function sendMessage(text) {
         renderMessage('system', 'Pesan tidak dapat dikirim. Periksa koneksi Anda.');
         console.error('Send error:', err);
     } finally {
+        isSending = false;
         if (input && convStatus !== 'closed') {
             input.disabled = false;
             input.focus();
         }
     }
 }
+
 
 /* ── Event: Tombol "Hubungi Admin" ───────────────────────────── */
 if (humanBtn) {

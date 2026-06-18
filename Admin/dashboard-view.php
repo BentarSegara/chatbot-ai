@@ -55,6 +55,7 @@ $currentMonthLabel = 'June 2026';
         <nav class="side-nav">
             <a href="dashboard-view.php" class="active">📊 Dashboard</a>
             <a href="chat-view.php">💬 Chat</a>
+            <a href="history-view.php">📋 Histori</a>
             <a href="staff-view.php">👥 Staff</a>
         </nav>
         <div class="side-bottom">

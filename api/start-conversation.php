@@ -13,25 +13,27 @@ session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../includes/db.php';
 
-// Jika session sudah punya conv_id, langsung return
+$pdo = db_connect();
+
+// Jika session sudah punya conv_id, cek dulu apakah masih aktif
 if (!empty($_SESSION['conv_id'])) {
-    echo json_encode(['conversation_id' => (int) $_SESSION['conv_id']]);
-    exit;
+    $stmtCheck = $pdo->prepare('SELECT id, status FROM conversations WHERE id = ? LIMIT 1');
+    $stmtCheck->execute([(int) $_SESSION['conv_id']]);
+    $existingConv = $stmtCheck->fetch();
+
+    // Jika percakapan masih ada dan belum closed, langsung kembalikan
+    if ($existingConv && $existingConv['status'] !== 'closed') {
+        echo json_encode(['conversation_id' => (int) $existingConv['id']]);
+        exit;
+    }
+
+    // Percakapan sudah closed atau tidak ditemukan — hapus dari session dan buat baru
+    unset($_SESSION['conv_id']);
 }
 
-$sessionKey = session_id();
-$pdo        = db_connect();
-
-// Cek apakah session ini sudah punya conversation di DB
-$stmt = $pdo->prepare('SELECT id FROM conversations WHERE session_key = ? LIMIT 1');
-$stmt->execute([$sessionKey]);
-$conv = $stmt->fetch();
-
-if ($conv) {
-    $_SESSION['conv_id'] = (int) $conv['id'];
-    echo json_encode(['conversation_id' => (int) $conv['id']]);
-    exit;
-}
+// Buat session_key unik: session_id + timestamp (ms) agar tidak konflik dengan UNIQUE constraint
+// ketika user memulai percakapan baru setelah percakapan lama ditutup
+$sessionKey = session_id() . '_' . round(microtime(true) * 1000);
 
 // Buat conversation baru
 $stmt = $pdo->prepare(

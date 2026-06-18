@@ -77,7 +77,3 @@ def detect_handoff(chatRequest: ChatRequest):
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "Disty Chatbot API"}
-
-@app.get("/hallo")
-def say_hallo():
-    return "Hallo World"
