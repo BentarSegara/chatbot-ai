@@ -45,9 +45,9 @@ $convId = (int) $pdo->lastInsertId();
 $_SESSION['conv_id'] = $convId;
 
 // Insert pesan sambutan awal dari AI
-$stmt = $pdo->prepare(
-    'INSERT INTO messages (conversation_id, sender_role, sender_name, content) VALUES (?, ?, ?, ?)'
-);
-$stmt->execute([$convId, 'ai', 'Bot Assistant', 'Halo! Ada yang bisa saya bantu?']);
+// $stmt = $pdo->prepare(
+//     'INSERT INTO messages (conversation_id, sender_role, sender_name, content) VALUES (?, ?, ?, ?)'
+// );
+// $stmt->execute([$convId, 'ai', 'Bot Assistant', 'Halo! Ada yang bisa saya bantu?']);
 
 echo json_encode(['conversation_id' => $convId]);

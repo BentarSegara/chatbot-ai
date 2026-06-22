@@ -121,10 +121,9 @@ async function pollMessages() {
         const data = await res.json();
 
         if (data.messages && data.messages.length > 0) {
-            // Sembunyikan suggestion saat ada pesan masuk
-            if (suggestions && lastMsgId === 0) {
-                suggestions.closest('.chat-suggestions-wrapper')?.remove();
-            }
+            // Sembunyikan suggestion saat ada pesan masuk (gunakan hide, bukan remove)
+            const suggWrapper = suggestions?.closest('.chat-suggestions-wrapper');
+            if (suggWrapper) suggWrapper.hidden = true;
 
             data.messages.forEach(msg => {
                 const msgId = parseInt(msg.id);
@@ -135,6 +134,10 @@ async function pollMessages() {
                 }
                 lastMsgId = Math.max(lastMsgId, msgId);
             });
+        } else {
+            // Tidak ada pesan sama sekali — tampilkan kembali suggestion box
+            const suggWrapper = suggestions?.closest('.chat-suggestions-wrapper');
+            if (suggWrapper) suggWrapper.hidden = false;
         }
 
         if (data.conv_status) {
@@ -188,6 +191,10 @@ function closePopup() {
         input.value    = '';
         input.disabled = false;
     }
+
+    // Tampilkan kembali suggestion box untuk sesi baru
+    const suggWrapper = suggestions?.closest('.chat-suggestions-wrapper');
+    if (suggWrapper) suggWrapper.hidden = false;
 }
 
 /* ── Kirim pesan ────────────────────────────────────────────── */

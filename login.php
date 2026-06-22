@@ -87,11 +87,11 @@ require_once 'includes/auth.php';
         </form>
 
         <!-- Demo Credentials Hint -->
-        <div class="demo-hint">
+        <!-- <div class="demo-hint">
             <p>🔑 Akun Demo</p>
             <code>Admin &nbsp;&nbsp;→ admin / admin123</code>
             <code>User &nbsp;&nbsp;&nbsp;→ user / user123</code>
-        </div>
+        </div> -->
 
         <a href="index.php" class="back-link">← Kembali ke Beranda</a>
 
